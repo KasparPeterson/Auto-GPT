@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import openai
 
+from autogpt import file_logger
 from autogpt.config import Config
 from autogpt.llm.modelsinfo import COSTS
 from autogpt.logs import logger
@@ -39,6 +40,7 @@ class ApiManager(metaclass=Singleton):
         Returns:
         str: The AI's response.
         """
+        file_logger.append_gpt_input(messages)
         cfg = Config()
         if temperature is None:
             temperature = cfg.temperature
@@ -63,6 +65,7 @@ class ApiManager(metaclass=Singleton):
         prompt_tokens = response.usage.prompt_tokens
         completion_tokens = response.usage.completion_tokens
         self.update_cost(prompt_tokens, completion_tokens, model)
+        file_logger.append_gpt_output(response)
         return response
 
     def update_cost(self, prompt_tokens, completion_tokens, model):
